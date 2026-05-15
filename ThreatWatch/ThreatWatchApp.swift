@@ -2,31 +2,17 @@
 //  ThreatWatchApp.swift
 //  ThreatWatch
 //
-//  Created by  infopro on 2026/5/4.
-//
 
 import SwiftUI
-import SwiftData
 
 @main
 struct ThreatWatchApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @State private var env = AppEnvironment()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(env)
         }
-        .modelContainer(sharedModelContainer)
     }
 }

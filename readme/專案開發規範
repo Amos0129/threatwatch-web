@@ -1,0 +1,176 @@
+# 🧭 專案開發規範（Claude 可讀｜完整版）
+
+本文件適用所有前端 / 後端 / DB 專案。
+
+---
+
+# 1. 開發總原則
+
+- 所有功能必須拆成三層：
+  1. DB（資料結構）
+  2. Backend（邏輯/API）
+  3. Frontend（UI）
+
+- 不可只做 UI 或只做 API
+- 所有邏輯集中在 backend/service
+- 所有功能必須模組化、可重用
+- 所有輸入資料必須驗證
+- 所有功能不可寫死
+
+---
+
+# 2. 資安規範（Security）
+
+## 2.1 基本原則
+- 預設不信任任何 client input
+- 所有 API 必須驗證身份與權限
+- 所有敏感資料不得回傳前端
+
+---
+
+## 2.2 Auth / 身份驗證
+- 使用 token-based（JWT / OAuth）
+- token 必須有過期時間
+- 密碼不可明文儲存（必須 hash）
+- API 必須驗證 user identity
+
+---
+
+## 2.3 Authorization / 權限
+- 每個 API 必須檢查權限
+- 不同角色限制不同操作
+- 不可只依賴前端控制權限
+
+---
+
+## 2.4 DB 安全
+- 防止 SQL injection（ORM / parameterized query）
+- 敏感資料加密
+- 資料必須有 owner（user_id）
+
+---
+
+## 2.5 API 安全
+- input 必須 schema validation
+- 限制 request size
+- rate limit 防止濫用
+- 不回傳內部錯誤（stack trace 禁止）
+
+---
+
+## 2.6 Frontend 安全
+- 不存 password / secret
+- token 安全儲存（httpOnly cookie / secure storage）
+- 不可信任前端驗證
+
+---
+
+# 3. 測試規範（Testing）
+
+## 3.1 測試原則
+- 所有功能必須可測試
+- backend / frontend / db 都要有對應測試
+- 測試要可重複執行（deterministic）
+
+---
+
+## 3.2 Backend 測試
+
+### 類型
+- Unit Test（單一 function）
+- Integration Test（API + DB）
+- Auth Test（權限）
+
+### 必測項目
+- API 是否正確回應
+- 錯誤是否正確處理
+- 權限是否正確阻擋
+- DB 是否正確寫入
+
+---
+
+## 3.3 Frontend 測試
+
+### 類型
+- Component Test
+- UI Interaction Test
+- API Mock Test
+
+### 必測項目
+- UI 是否正確渲染
+- API error 是否正確顯示
+- loading / error state
+
+---
+
+## 3.4 DB 測試
+- schema 是否正確
+- relation 是否正確
+- constraint 是否生效
+- data integrity 是否維持
+
+---
+
+## 3.5 E2E 測試（整體流程）
+- 使用者流程完整測試：
+  - login → 操作 → logout
+- API + UI + DB 全流程驗證
+
+---
+
+## 3.6 測試規則
+- ❌ 不可跳過測試
+- ❌ 不可 mock 掉核心邏輯
+- ❌ 不可只測 happy path
+- ✔ 必須測 error case
+
+---
+
+# 4. 開發流程（標準）
+
+## Step 1：需求拆解
+- DB（資料）
+- Backend（邏輯）
+- Frontend（UI）
+- Security（權限）
+- Test（測試）
+
+---
+
+## Step 2：DB 設計
+- id
+- created_at
+- updated_at
+- owner/user_id（必要）
+
+---
+
+## Step 3：Backend
+- Controller（request）
+- Service（logic）
+- Repository（DB）
+
+---
+
+## Step 4：Frontend
+- UI only
+- API 呼叫集中管理
+- 不寫 business logic
+
+---
+
+## Step 5：Testing
+- unit test
+- integration test
+- e2e test
+
+---
+
+# 5. API 規範
+
+## 成功
+```json
+{
+  "success": true,
+  "data": {}
+}

@@ -2,17 +2,6 @@
 //  Item.swift
 //  ThreatWatch
 //
-//  Created by  infopro on 2026/5/4.
+//  This file is intentionally left empty.
+//  The original SwiftData Item model has been replaced by NewsArticle.swift.
 //
-
-import Foundation
-import SwiftData
-
-@Model
-final class Item {
-    var timestamp: Date
-    
-    init(timestamp: Date) {
-        self.timestamp = timestamp
-    }
-}

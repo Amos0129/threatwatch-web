@@ -2,79 +2,68 @@
 //  ContentView.swift
 //  ThreatWatch
 //
-//  Created by  infopro on 2026/5/4.
-//
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Environment(AppEnvironment.self) private var env
+    @State private var selectedTab = 0
 
     var body: some View {
-        NavigationViewWrapper {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        ZStack(alignment: .bottom) {
+            // 主內容
+            Group {
+                if selectedTab == 0 {
+                    NavigationStack {
+                        ArticleListView(viewModel: env.newsViewModel)
                     }
-                }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                } else {
+                    NavigationStack {
+                        BookmarkListView(viewModel: env.newsViewModel)
                     }
                 }
             }
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                customTabBar
             }
         }
+        .preferredColorScheme(AppTheme.shared.isDark ? .dark : .light)
     }
-}
 
-fileprivate struct NavigationViewWrapper<Content: View>: View {
-    let content: () -> Content
+    // MARK: - Custom Tab Bar
 
-    var body: some View {
-#if os(macOS)
-        NavigationSplitView {
-            content()
-        } detail: {
-            Text("Select an item")
+    private var customTabBar: some View {
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(DS.Colors.separator)
+                .frame(height: 1)
+
+            HStack(spacing: 0) {
+                tabButton(icon: "newspaper", label: "新聞",  index: 0)
+                tabButton(icon: "bookmark",  label: "書籤",  index: 1)
+            }
+            .padding(.top, DS.Spacing.sm)
+            .padding(.bottom, DS.Spacing.xs)
+            .background(DS.Colors.navBG)
         }
-#else
-        content()
-#endif
+        // 延伸背景到 home indicator 區域
+        .background(DS.Colors.navBG.ignoresSafeArea(edges: .bottom))
     }
-}
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+    private func tabButton(icon: String, label: String, index: Int) -> some View {
+        let active = selectedTab == index
+        return Button { selectedTab = index } label: {
+            VStack(spacing: DS.Spacing.xs) {
+                Image(systemName: active ? "\(icon).fill" : icon)
+                    .font(.system(size: 22))
+                Text(label)
+                    .font(.system(size: 10, weight: active ? .semibold : .regular))
+            }
+            .foregroundStyle(active ? DS.Colors.accent : DS.Colors.textTertiary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DS.Spacing.xs)
+            .contentShape(Rectangle())
+        }
+    }
 }
